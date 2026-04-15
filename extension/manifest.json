@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "ScreenTask AI",
+  "version": "1.0",
+  "description": "Convert screenshots into actionable tasks",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs" ,
+    "storage"
+  ],
+  "host_permissions": [
+  "http://localhost:3000/*"
+],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "ScreenTask AI"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

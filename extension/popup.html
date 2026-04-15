@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>ScreenTask AI</title>
+  
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: #020617;
+    font-family: 'Segoe UI', sans-serif;
+  }
+
+  .app {
+    width: 320px;
+    padding: 14px;
+    border-radius: 20px;
+    background: radial-gradient(circle at top, #0f172a, #020617);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    color: white;
+  }
+  #toast {
+  position: fixed;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(0,0,0,0.8);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  opacity: 0;
+  transition: 0.3s;
+  pointer-events: none;
+}
+
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+  /* HEADER */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .logo {
+    font-size: 20px;
+  }
+
+  .title {
+    flex: 1;
+    margin-left: 8px;
+    font-weight: 600;
+    font-size: 15px;
+  }
+
+  .count {
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* BUTTON BAR */
+  .actions-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .actions-bar button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(10px);
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .actions-bar button:hover {
+    transform: translateY(-2px);
+    background: rgba(255,255,255,0.08);
+  }
+
+  .section-title {
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+  }
+
+  /* TASK CARD */
+  .task-card {
+    position: relative;
+    border-radius: 18px;
+    padding: 14px;
+    margin-bottom: 12px;
+    color: #111;
+    transition: all 0.25s ease;
+  }
+
+  .task-card:hover {
+    transform: translateY(-3px) scale(1.01);
+  }
+ 
+
+  /* COLORS */
+  .high { background: #fca5a5; }
+  .medium { background: #fde68a; }
+  .low { background: #93c5fd; }
+
+  .badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(0,0,0,0.15);
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+
+  .task-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .done {
+    text-decoration: line-through;
+    opacity: 0.6;
+  }
+
+  .task-meta {
+    font-size: 11px;
+    color: #333;
+  }
+
+  /* BUTTONS */
+  .actions {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    display: flex;
+    gap: 8px;
+  }
+
+  .action-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s;
+  }
+
+  .action-btn:hover {
+    transform: scale(1.15);
+    background: rgba(255,255,255,0.7);
+  }
+
+  .new-task {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+</style>
+  </head>
+  <body>
+  <div class="app">
+  
+    <div class="header">
+      <div class="logo">📄</div>
+      <div class="title">ScreenTask AI</div>
+      <div class="count">4 tasks</div>
+    </div>
+<div id="toast"></div>
+    <div class="actions-bar">
+      <button id="fullBtn">📸 Full page</button>
+      <button id="regionBtn">✂️ Select region</button>
+      <div id="status" style="font-size:12px; color:#94a3b8; margin-bottom:8px;"></div>
+    </div>
+
+    <div class="section-title">EXTRACTED TASKS</div>
+    
+    <div id="tasks"></div>
+  <!-- <div id="status"></div> -->
+
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
