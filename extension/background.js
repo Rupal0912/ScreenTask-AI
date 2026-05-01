@@ -41,7 +41,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 // Backend ko screenshot bhejna
 async function sendToBackend(imageData) {
   try {
-    const response = await fetch("http://localhost:3000/process-screenshot", {
+    const response = await fetch("https://screentask-ai.onrender.com/process-screenshot", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ imageData }),

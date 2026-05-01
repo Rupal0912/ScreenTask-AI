@@ -66,10 +66,11 @@ async function loadTasks() {
   try {
     container.innerHTML = "<p>Loading...</p>";
 
-    const res = await fetch("http://localhost:3000/tasks");
+    const res = await fetch("https://screentask-ai.onrender.com/tasks");
     const data = await res.json();
 
     const tasks = data.tasks || [];
+    const intent = tasks[0]?.intent || "";
     tasks.sort((a, b) => {
   const order = { high: 1, medium: 2, low: 3 };
   return order[a.priority] - order[b.priority];
@@ -86,7 +87,9 @@ async function loadTasks() {
       return;
     }
 
-    container.innerHTML = tasks.map(task => `
+    container.innerHTML = `
+  ${intent ? `<div style="margin-bottom:10px; font-weight:bold;">🧠 ${intent}</div>` : ""}
+` + tasks.map(task => `
       <div class="task-card ${task.priority} new-task">
 
         <div class="badge">
@@ -98,8 +101,16 @@ async function loadTasks() {
         </div>
 
         <div class="task-meta">
-          📅 ${task.deadline || "No deadline"}
-        </div>
+  📅 ${task.deadline || "No deadline"}
+</div>
+
+${task.steps && task.steps.length > 0 ? `
+  <ul style="margin-top:6px; padding-left:15px; font-size:12px;">
+    ${task.steps.map(step => `<li>${step}</li>`).join("")}
+  </ul>
+` : ""}
+
+
 
         <div class="actions">
           <div class="action-btn complete-btn" data-id="${task._id}" data-status="${task.completed}">
@@ -128,13 +139,7 @@ async function loadTasks() {
       });
     });
 
-    // delete
-    // document.querySelectorAll(".delete-btn").forEach(btn => {
-    //   btn.addEventListener("click", async () => {
-    //     const id = btn.getAttribute("data-id");
-    //     await deleteTask(id);
-    //   });
-    // });
+  
    document.querySelectorAll(".delete-btn").forEach(btn => {
   btn.addEventListener("click", async () => {
     const id = btn.getAttribute("data-id");
@@ -158,29 +163,7 @@ async function loadTasks() {
   });
 });
 
-//     // complete toggle
-//     document.querySelectorAll(".complete-btn").forEach(btn => {
-//       btn.addEventListener("click", async () => {
-//         const id = btn.getAttribute("data-id");
-//         const current = btn.getAttribute("data-status") === "true";
 
-//         // await toggleComplete(id, !current);
-//         const card = btn.closest(".task-card");
-
-// // instant UI feedback
-// card.querySelector(".task-title").classList.toggle("done");
-
-// // slight fade
-// card.style.opacity = "0.6";
-
-// await toggleComplete(id, !current);
-
-// // restore
-// card.style.opacity = "1";
-
-// loadTasks();
-//       });
-//     });
 document.querySelectorAll(".complete-btn").forEach(btn => {
   btn.addEventListener("click", async () => {
     const id = btn.getAttribute("data-id");
@@ -215,7 +198,7 @@ document.querySelectorAll(".complete-btn").forEach(btn => {
 // 🔴 DELETE
 async function deleteTask(id) {
   try {
-    await fetch(`http://localhost:3000/task/${id}`, {
+    await fetch(`https://screentask-ai.onrender.com/task/${id}`, {
       method: "DELETE"
     });
 
@@ -229,7 +212,7 @@ async function deleteTask(id) {
 // 🔴 TOGGLE COMPLETE
 async function toggleComplete(id, status) {
   try {
-    await fetch(`http://localhost:3000/task/${id}`, {
+    await fetch(`https://screentask-ai.onrender.com/task/${id}`, {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json"
