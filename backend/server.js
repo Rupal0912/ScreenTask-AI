@@ -15,6 +15,9 @@ const taskSchema = new mongoose.Schema({
   type: { type: String, default: "task" },
   priority: { type: String, default: "medium" },
   deadline: { type: String, default: null },
+  steps: { type: [String], default: [] },   // ✅ NEW
+  intent: { type: String, default: "" },    // ✅ NEW 
+  category: { type: String, default: "General" },
   completed: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now }
 });
@@ -38,19 +41,66 @@ app.post("/process-screenshot", async (req, res) => {
     return res.status(400).json({ error: "No image received" });
   }
 
-  const prompt = `Analyze this screenshot and extract all tasks, todos, deadlines, and action items.
-  
-  Return ONLY a JSON object in this exact format, nothing else:
-  {
-    "tasks": [
-      {
-        "title": "task description",
-        "type": "task or reminder or note",
-        "priority": "high or medium or low",
-        "deadline": "deadline if found, or null"
-      }
-    ]
-  }`;
+  const prompt = `
+You are an AI system that converts screenshot content into structured, actionable workflows.
+
+IMPORTANT RULES:
+- Do NOT give generic intent like "respond to messages"
+- Intent must clearly describe the final goal the user needs to achieve
+- Focus on actionable outcomes (e.g., complete assignments, submit feedback, pay fees)
+
+STEP-BY-STEP:
+
+1. Identify the MAIN GOAL (intent)
+   - It must be specific and outcome-based
+   - BAD: "respond to messages"
+   - GOOD: "Complete pending academic tasks including assignments, feedback, and course preparation"
+
+2. Extract ONLY meaningful tasks (ignore UI noise)
+
+3. Break each task into clear steps
+
+4. Assign priority based on urgency and deadlines
+5. Avoid duplicate or overlapping tasks
+   - Merge similar tasks into one if they represent the same goal
+
+6. Each task must be distinct and non-redundant
+
+7. Prioritize tasks based on deadlines and importance
+   - If a deadline exists, mark as high priority
+8. Explain priority based on deadline or urgency internally before assigning
+9. If no meaningful tasks exist, return empty tasks array
+
+EXAMPLE:
+
+Input: "Assignment due tomorrow, feedback pending, course link"
+Output:
+{
+  "intent": "Complete pending academic tasks before deadlines",
+  "tasks": [
+    {
+      "title": "Submit assignment",
+      "steps": ["Complete answers", "Upload file"],
+      "priority": "high",
+      "deadline": "tomorrow"
+    }
+  ]
+}
+
+Return ONLY valid JSON in this format:
+
+{
+  "intent": "specific goal",
+  "tasks": [
+    {
+      "title": "task description",
+      "steps": ["step 1", "step 2"],
+      "priority": "high or medium or low",
+      "deadline": "deadline if found, or null"
+    }
+  ]
+}
+`;
 
   try {
     const response = await groq.chat.completions.create({
@@ -67,7 +117,10 @@ app.post("/process-screenshot", async (req, res) => {
       max_tokens: 1024,
     });
 
+    
+
     let text = response.choices[0].message.content;
+    console.log("RAW AI OUTPUT:\n", text);
     text = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
 
     const parsed = JSON.parse(text);
@@ -75,7 +128,12 @@ app.post("/process-screenshot", async (req, res) => {
 
 // MongoDB me save karo
     const savedTasks = await Promise.all(
-  parsed.tasks.map(task => new Task(task).save())
+  parsed.tasks.map(task => 
+  new Task({
+    ...task,
+    intent: parsed.intent || ""
+  }).save()
+)
 );
 
 console.log("Tasks saved to DB!");
@@ -115,7 +173,7 @@ app.patch("/task/:id", async (req, res) => {
     res.status(500).json({ error: "Update failed" });
   }
 });
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
